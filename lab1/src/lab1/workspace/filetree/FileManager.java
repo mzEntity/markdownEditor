@@ -71,7 +71,7 @@ public class FileManager {
         return content;
     }
 
-    public HashMap<Long, String> findContent(String content){
+    public Map<Long, String> findContent(String content){
         if(this.fileTree == null){
             System.out.println("You have not load any file yet.");
             return null;
@@ -151,7 +151,7 @@ public class FileManager {
                     }
                 }
                 boolean isCurrentFinished = (fileNode.nextSibling == null);
-                String prefix, newIndent;
+                String newIndent, prefix;
                 if(isCurrentFinished){
                     prefix = "└── ";
                     newIndent = "    ";
