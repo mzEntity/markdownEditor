@@ -70,12 +70,10 @@ public class StatsManager {
     }
 
     public void writeSessionStart(String filePath){
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))){
             String info = this.sessionInfo();
             writer.write(info);
             writer.newLine();
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,8 +84,7 @@ public class StatsManager {
         this.writeSessionStart(this.logFilePath);
     }
     public void writeSessionStat(){
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true))){
             List<String> allStats = this.getAllFileStats();
             int statsCount = allStats.size();
             for(int i = this.statsWriteIndex; i < statsCount; i++){
@@ -95,7 +92,6 @@ public class StatsManager {
                 writer.newLine();
             }
             this.statsWriteIndex = statsCount;
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

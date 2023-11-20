@@ -28,15 +28,13 @@ public class LogManager {
     }
 
     public void writeLog(){
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.logFilePath, true));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.logFilePath, true))){
             int logCount = this.log.size();
             for(int i = this.writeStartIndex; i < logCount; i++){
                 writer.write(this.log.get(i));
                 writer.newLine();
             }
             this.writeStartIndex = logCount;
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

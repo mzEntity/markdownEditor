@@ -184,8 +184,7 @@ public class FileManager {
     private Map<Long, String> getFileLines(String filePath){
         Map<Long, String> lines = new HashMap<>();
         long lineNum = 1;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.put(lineNum, line);
@@ -193,21 +192,16 @@ public class FileManager {
             }
         } catch (IOException e) {
             System.out.println("文件不存在，新建文件" + filePath);
-        } finally {
-            return lines;
         }
+        return lines;
     }
 
     private void saveFile(String filePath, List<String> content){
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
             for (String str : content) {
                 writer.write(str);
                 writer.newLine();
             }
-
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

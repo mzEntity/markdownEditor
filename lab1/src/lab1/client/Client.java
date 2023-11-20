@@ -53,17 +53,15 @@ public class Client {
 
     private List<String> getTestFile(String filePath){
         List<String> cmds = new ArrayList<>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
             while ((line = reader.readLine()) != null) {
                 cmds.add(line);
             }
         } catch (IOException e) {
             System.out.println("文件不存在，新建文件" + filePath);
-        } finally {
-            return cmds;
         }
+        return cmds;
     }
 
     private void executeTest(List<String> cmdList){
