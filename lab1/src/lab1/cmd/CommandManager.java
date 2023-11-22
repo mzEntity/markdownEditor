@@ -1,6 +1,6 @@
 package lab1.cmd;
 
-import lab1.cmd.cmd.concrete.SecretaryDecorator;
+import lab1.cmd.cmd.concrete.SaveCommand;
 import lab1.cmd.parser.console.concrete.*;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
@@ -48,7 +48,19 @@ public class CommandManager {
             System.out.println("Invalid command");
         }
         else{
-            this.executeCommand(cmd);
+            if(cmd instanceof Revocable){
+                deskTop.addToHistory((Revocable) cmd);
+            }
+            if(cmd instanceof Unskippable){
+                deskTop.clearHistory();
+            }
+            boolean executeSuccess = cmd.execute();
+            if(executeSuccess){
+                deskTop.info(cmd.description());
+                if(cmd instanceof SaveCommand){
+                    deskTop.writeLogStats();
+                }
+            }
         }
     }
 
@@ -63,9 +75,7 @@ public class CommandManager {
             return null;
         }
         else {
-            Executable cmd = this.allCommands.get(cmdType).createInstance(this.deskTop, request);
-            if(cmd == null) return null;
-            else return new SecretaryDecorator(this.deskTop, cmd);
+            return this.allCommands.get(cmdType).createInstance(this.deskTop, request);
         }
     }
 

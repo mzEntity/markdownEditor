@@ -71,7 +71,7 @@ public class FileManager {
         return content;
     }
 
-    public Map<Long, String> findContent(String content){
+    public HashMap<Long, String> findContent(String content){
         if(this.fileTree == null){
             System.out.println("You have not load any file yet.");
             return null;
