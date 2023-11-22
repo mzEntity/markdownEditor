@@ -1,101 +1,100 @@
 package lab1.cmd;
 
-import lab1.cmd.cmd.concrete.SaveCommand;
-import lab1.cmd.parser.console.concrete.*;
+import lab1.cmd.cmd.concrete.global.ExitCommand;
+import lab1.cmd.cmd.concrete.local.SaveCommand;
+import lab1.cmd.parser.console.concrete.GlobalConsoleParser;
+import lab1.cmd.parser.console.concrete.LocalConsoleParser;
+import lab1.cmd.parser.console.concrete.global.CloseCommandConsoleParser;
+import lab1.cmd.parser.console.concrete.global.ExitCommandConsoleParser;
+import lab1.cmd.parser.console.concrete.global.LoadCommandConsoleParser;
+import lab1.cmd.parser.console.concrete.global.OpenCommandConsoleParser;
+import lab1.cmd.parser.console.concrete.local.*;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
 import lab1.cmd.parser.console.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 public class CommandManager {
     private HashMap<String, DeskTop> allWorkSpaces;
     private DeskTop deskTop;
 
-    private HashMap<String, ConsoleParser> allCommands;
+    private HashMap<String, LocalConsoleParser> allLocalCommands;
+    private HashMap<String, GlobalConsoleParser> allGlobalCommands;
 
     public CommandManager() {
         this.allWorkSpaces = new HashMap<>();
-        this.allCommands = new HashMap<>();
+        this.allLocalCommands = new HashMap<>();
+        this.allGlobalCommands = new HashMap<>();
+        
         this.deskTop = null;
         this.initCommandMapping();
     }
 
     private void initCommandMapping(){
-//        this.allCommands.put("load", new LoadCommandConsoleParser());
-//        this.allCommands.put("save", new SaveCommandConsoleParser());
-        this.allCommands.put("insert", new InsertCommandConsoleParser());
-        this.allCommands.put("append-head", new AppendHeadCommandConsoleParser());
-        this.allCommands.put("append-tail", new AppendTailCommandConsoleParser());
-        this.allCommands.put("delete", new DeleteCommandConsoleParser());
-        this.allCommands.put("undo", new UndoCommandConsoleParser());
-        this.allCommands.put("redo", new RedoCommandConsoleParser());
-        this.allCommands.put("list", new ListCommandConsoleParser());
-        this.allCommands.put("dir-tree", new DirTreeCommandConsoleParser());
-        this.allCommands.put("list-tree", new ListTreeCommandConsoleParser());
-        this.allCommands.put("history", new HistoryCommandConsoleParser());
-        this.allCommands.put("stats", new StatsCommandConsoleParser());
+        this.allGlobalCommands.put("load", new LoadCommandConsoleParser());
+        this.allGlobalCommands.put("open", new OpenCommandConsoleParser());
+        this.allGlobalCommands.put("exit", new ExitCommandConsoleParser());
+        this.allGlobalCommands.put("close", new CloseCommandConsoleParser());
+
+        this.allLocalCommands.put("save", new SaveCommandConsoleParser());
+        this.allLocalCommands.put("insert", new InsertCommandConsoleParser());
+        this.allLocalCommands.put("append-head", new AppendHeadCommandConsoleParser());
+        this.allLocalCommands.put("append-tail", new AppendTailCommandConsoleParser());
+        this.allLocalCommands.put("delete", new DeleteCommandConsoleParser());
+        this.allLocalCommands.put("undo", new UndoCommandConsoleParser());
+        this.allLocalCommands.put("redo", new RedoCommandConsoleParser());
+        this.allLocalCommands.put("list", new ListCommandConsoleParser());
+        this.allLocalCommands.put("dir-tree", new DirTreeCommandConsoleParser());
+        this.allLocalCommands.put("list-tree", new ListTreeCommandConsoleParser());
+        this.allLocalCommands.put("history", new HistoryCommandConsoleParser());
+        this.allLocalCommands.put("stats", new StatsCommandConsoleParser());
     }
 
-    private int dealWithRequestIfGlobal(List<String> request){
-        String requestType = request.get(0);
-        switch (requestType){
-            case "load":
-                this.load(request.get(1));
-                break;
-            case "save":
-                this.save();
-                break;
-            case "open":
-                this.open(request.get(1));
-                break;
-            case "close":
-                this.close();
-                break;
-            case "exit":
-                this.exit();
-                return -1;
-            default:
-                return 0;
-        }
-        return 1;
-    }
 
     public boolean dealWithRequest(List<String> request){
-        int code = this.dealWithRequestIfGlobal(request);
-        if(code == 1){
-            return true;
-        } else if(code == -1){
-            return false;
-        }
         Executable cmd = this.parseRequest(request);
         if(cmd == null){
             System.out.println("Invalid command");
+            return true;
         }
-        else{
+
+        boolean executeSuccess = cmd.execute();
+
+        if(!executeSuccess){
+            return true;
+        }
+
+        if(cmd instanceof LocalScale){
+            deskTop.setSaved(false);
+
             if(cmd instanceof Revocable){
                 deskTop.addToHistory((Revocable) cmd);
             }
             if(cmd instanceof Unskippable){
                 deskTop.clearHistory();
             }
-            boolean executeSuccess = cmd.execute();
-            if(executeSuccess){
-                deskTop.info(cmd.description());
+            deskTop.info(cmd.description());
+
+            if(cmd instanceof SaveCommand){
+                deskTop.setSaved(true);
+                deskTop.writeLogStats();
             }
         }
-        return true;
+
+
+        return !(cmd instanceof ExitCommand);
     }
 
     public void load(String filePath){
+        if(this.allWorkSpaces.containsKey(filePath)){
+            System.out.println("Workspace has already been opened.");
+            return;
+        }
         this.allWorkSpaces.put(filePath, new DeskTop(filePath));
         this.changeActiveWorkSpace(filePath);
-    }
-
-    public void save(){
-        this.deskTop.saveFile();
-        this.deskTop.writeLogStats();
     }
 
     public void open(String filePath){
@@ -103,7 +102,14 @@ public class CommandManager {
     }
 
     public void close(){
+        if(this.deskTop == null){
+            System.out.println("No active workspace.");
+            return;
+        }
+
         String filePath = this.deskTop.filePath;
+        this.saveSession(this.deskTop);
+
         this.deskTop = null;
         this.allWorkSpaces.remove(filePath);
     }
@@ -111,8 +117,35 @@ public class CommandManager {
     public void exit(){
         this.deskTop = null;
         for(String key: this.allWorkSpaces.keySet()){
-            this.allWorkSpaces.remove(key);
+            DeskTop target = this.allWorkSpaces.get(key);
+            this.saveSession(target);
         }
+        this.allWorkSpaces.clear();
+    }
+
+    private void saveSession(DeskTop targetDeskTop){
+        if(!targetDeskTop.isSaved()){
+            if(askForSave()){
+                targetDeskTop.saveFile();
+                targetDeskTop.setSaved(true);
+                targetDeskTop.writeLogStats();
+            }
+        }
+    }
+
+    private boolean askForSave(){
+        System.out.println("You haven't saved the file yet. Do you want to save it?[Y/N]");
+        Scanner scanner = new Scanner(System.in);
+        String choice = null;
+        do{
+            String inputStr = scanner.nextLine();
+            if(inputStr.length() <= 0){
+                choice = "0";
+            } else {
+                choice = inputStr.substring(0, 1);
+            }
+        } while(!"YNyn".contains(choice));
+        return choice.equalsIgnoreCase("Y");
     }
 
     private boolean changeActiveWorkSpace(String filePath){
@@ -125,12 +158,18 @@ public class CommandManager {
 
     private Executable parseRequest(List<String> request){
         String cmdType = request.get(0);
-        if(!this.allCommands.containsKey(cmdType)) {
+        if(this.allGlobalCommands.containsKey(cmdType)) {
+            return this.allGlobalCommands.get(cmdType).createInstance(this, request);
+        }
+        else if(this.allLocalCommands.containsKey(cmdType)){
+            if(this.deskTop == null){
+                System.out.println("No active workspace.");
+                return null;
+            }
+            return this.allLocalCommands.get(cmdType).createInstance(this.deskTop, request);
+        } else {
             System.out.println("No such command");
             return null;
-        }
-        else {
-            return this.allCommands.get(cmdType).createInstance(this.deskTop, request);
         }
     }
 

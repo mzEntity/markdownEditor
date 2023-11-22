@@ -17,7 +17,17 @@ public class DeskTop {
     private LogManager logManager;
     private StatsManager statsManager;
 
+    private boolean saved;
+
     public String filePath;
+
+    public boolean isSaved() {
+        return saved;
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+    }
 
     public DeskTop(String filePath) {
         this.filePath = filePath;
@@ -26,6 +36,8 @@ public class DeskTop {
         this.fileManager = new FileManager(filePath);
         this.logManager = new LogManager(filePath);
         this.statsManager = new StatsManager(filePath);
+
+        this.saved = true;
     }
 
     public void addToHistory(Revocable cmd){
