@@ -17,11 +17,15 @@ public class DeskTop {
     private LogManager logManager;
     private StatsManager statsManager;
 
-    public DeskTop() {
+    public String filePath;
+
+    public DeskTop(String filePath) {
+        this.filePath = filePath;
+
         this.commandStack = new CommandStack();
-        this.fileManager = new FileManager();
-        this.logManager = new LogManager("./log.txt");
-        this.statsManager = new StatsManager("./stats.txt", "./log.txt");
+        this.fileManager = new FileManager(filePath);
+        this.logManager = new LogManager(filePath);
+        this.statsManager = new StatsManager(filePath);
     }
 
     public void addToHistory(Revocable cmd){
@@ -30,15 +34,6 @@ public class DeskTop {
 
     public void clearHistory(){
         this.commandStack.clearStack();
-    }
-
-    public void cleanUp(){
-        this.writeLogStats();
-    }
-
-    public void loadFile(String filePath){
-        this.fileManager.initFileTree(filePath);
-        this.statsManager.fileWorkStart(filePath);
     }
 
     public boolean saveFile(){

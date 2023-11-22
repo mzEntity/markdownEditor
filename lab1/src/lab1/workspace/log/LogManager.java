@@ -15,9 +15,9 @@ public class LogManager {
     private int writeStartIndex;
 
 
-    public LogManager(String logFilePath) {
+    public LogManager(String filePath) {
         this.log = new ArrayList<>();
-        this.logFilePath = logFilePath;
+        this.logFilePath = filePath + ".logfile";
         this.writeStartIndex = 0;
     }
 

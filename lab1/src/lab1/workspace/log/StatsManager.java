@@ -26,9 +26,9 @@ public class StatsManager {
 
     private int statsWriteIndex;
 
-    public StatsManager(String statsFilePath, String logFilePath) {
-        this.statFilePath = statsFilePath;
-        this.logFilePath = logFilePath;
+    public StatsManager(String filePath) {
+        this.statFilePath = filePath + ".stats";
+        this.logFilePath = filePath + ".logfile";
 
         this.sessionStart();
         this.currentWorkingFilePath = null;
@@ -37,6 +37,8 @@ public class StatsManager {
         this.workedFileNameList = new ArrayList<>();
         this.workedFileDuration = new ArrayList<>();
         this.statsWriteIndex = 0;
+
+        this.fileWorkStart(filePath);
     }
 
     public void sessionStart(){
@@ -59,10 +61,6 @@ public class StatsManager {
 
         this.currentWorkingFilePath = null;
         this.currentWorkingFileStartTime = null;
-    }
-
-    public boolean hasBeenWorking(){
-        return this.currentWorkingFilePath != null;
     }
 
     public String sessionInfo(){

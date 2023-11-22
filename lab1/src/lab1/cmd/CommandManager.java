@@ -22,13 +22,9 @@ public class CommandManager {
         this.initCommandMapping();
     }
 
-    public void initCommandManager(){
-        this.deskTop = new DeskTop();
-    }
-
     private void initCommandMapping(){
-        this.allCommands.put("load", new LoadCommandConsoleParser());
-        this.allCommands.put("save", new SaveCommandConsoleParser());
+//        this.allCommands.put("load", new LoadCommandConsoleParser());
+//        this.allCommands.put("save", new SaveCommandConsoleParser());
         this.allCommands.put("insert", new InsertCommandConsoleParser());
         this.allCommands.put("append-head", new AppendHeadCommandConsoleParser());
         this.allCommands.put("append-tail", new AppendTailCommandConsoleParser());
@@ -42,7 +38,37 @@ public class CommandManager {
         this.allCommands.put("stats", new StatsCommandConsoleParser());
     }
 
-    public void dealWithRequest(List<String> request){
+    private int dealWithRequestIfGlobal(List<String> request){
+        String requestType = request.get(0);
+        switch (requestType){
+            case "load":
+                this.load(request.get(1));
+                break;
+            case "save":
+                this.save();
+                break;
+            case "open":
+                this.open(request.get(1));
+                break;
+            case "close":
+                this.close();
+                break;
+            case "exit":
+                this.exit();
+                return -1;
+            default:
+                return 0;
+        }
+        return 1;
+    }
+
+    public boolean dealWithRequest(List<String> request){
+        int code = this.dealWithRequestIfGlobal(request);
+        if(code == 1){
+            return true;
+        } else if(code == -1){
+            return false;
+        }
         Executable cmd = this.parseRequest(request);
         if(cmd == null){
             System.out.println("Invalid command");
@@ -57,15 +83,44 @@ public class CommandManager {
             boolean executeSuccess = cmd.execute();
             if(executeSuccess){
                 deskTop.info(cmd.description());
-                if(cmd instanceof SaveCommand){
-                    deskTop.writeLogStats();
-                }
             }
+        }
+        return true;
+    }
+
+    public void load(String filePath){
+        this.allWorkSpaces.put(filePath, new DeskTop(filePath));
+        this.changeActiveWorkSpace(filePath);
+    }
+
+    public void save(){
+        this.deskTop.saveFile();
+        this.deskTop.writeLogStats();
+    }
+
+    public void open(String filePath){
+        this.changeActiveWorkSpace(filePath);
+    }
+
+    public void close(){
+        String filePath = this.deskTop.filePath;
+        this.deskTop = null;
+        this.allWorkSpaces.remove(filePath);
+    }
+
+    public void exit(){
+        this.deskTop = null;
+        for(String key: this.allWorkSpaces.keySet()){
+            this.allWorkSpaces.remove(key);
         }
     }
 
-    public void dealWithQuit(){
-        this.deskTop.cleanUp();
+    private boolean changeActiveWorkSpace(String filePath){
+        if(this.allWorkSpaces.containsKey(filePath)){
+            this.deskTop = this.allWorkSpaces.get(filePath);
+            return true;
+        }
+        return false;
     }
 
     private Executable parseRequest(List<String> request){
@@ -79,7 +134,4 @@ public class CommandManager {
         }
     }
 
-    public void executeCommand(Executable c){
-        c.execute();
-    }
 }

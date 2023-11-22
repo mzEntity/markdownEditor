@@ -14,7 +14,7 @@ public class LoadCommand implements Unskippable {
 
     @Override
     public boolean execute() {
-        this.receiver.loadFile(this.filePath);
+//        this.receiver.loadFile(this.filePath);
         return true;
     }
 

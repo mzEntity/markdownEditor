@@ -8,13 +8,12 @@ public class FileManager {
     private FileNode fileTree;
     private String filePath;
 
-    public FileManager() {
-        this.filePath = null;
-        this.fileTree = null;
+    public FileManager(String filePath) {
+        this.filePath = filePath;
+        this.initFileTree(filePath);
     }
 
     public void initFileTree(String filePath){
-        this.filePath = filePath;
         this.fileTree = FileNode.getRoot();
         Map<Long, String> fileLines = this.getFileLines(filePath);
         int size = fileLines.size();

@@ -15,7 +15,6 @@ public class Client {
     public Client() {
         this.consoleManager = new ConsoleManager();
         this.commandManager = new CommandManager();
-        this.commandManager.initCommandManager();
     }
 
     public void startSession(){
@@ -23,7 +22,7 @@ public class Client {
 
         while(true){
             List<String> request = this.consoleManager.getRequest();
-            boolean continueEnter = this.respondToRequest(request);
+            boolean continueEnter = this.commandManager.dealWithRequest(request);
             if(!continueEnter) break;
         }
     }
@@ -31,24 +30,6 @@ public class Client {
     public void executeTest(String filePath){
         List<String> tests = this.getTestFile(filePath);
         this.executeTest(tests);
-    }
-
-    private boolean respondToRequest(List<String> request){
-        if(isQuit(request)){
-            this.commandManager.dealWithQuit();
-            return false;
-        } else {
-            this.commandManager.dealWithRequest(request);
-            return true;
-        }
-    }
-
-    private boolean isQuit(List<String> request){
-        if(request.size() > 0 && request.get(0).equalsIgnoreCase("quit")){
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private List<String> getTestFile(String filePath){
@@ -67,18 +48,18 @@ public class Client {
     private void executeTest(List<String> cmdList){
         for(String request: cmdList){
             List<String> requestList = this.consoleManager.splitInputStr(request);
-            this.respondToRequest(requestList);
+            this.commandManager.dealWithRequest(requestList);
         }
     }
 
     public static void main(String[] args) {
         Client client = new Client();
-//        client.startSession();
-        client.executeTest("test1_cmd.txt");
-        client.executeTest("test2_cmd.txt");
-        client.executeTest("test3_cmd.txt");
-        client.executeTest("test4_cmd.txt");
-        client.executeTest("test5_cmd.txt");
+        client.startSession();
+//        client.executeTest("test1_cmd.txt");
+//        client.executeTest("test2_cmd.txt");
+//        client.executeTest("test3_cmd.txt");
+//        client.executeTest("test4_cmd.txt");
+//        client.executeTest("test5_cmd.txt");
 
     }
 }
