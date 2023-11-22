@@ -1,0 +1,5 @@
+sonar.sources=./src
+
+sonar.sources=./src/lab1/client/Client.java,./src/lab1/workspace/filetree/FileManager.java,./src/lab1/workspace/log/LogManager.java,./src/lab1/workspace/log/StatsManager.java
+
+sonar.sources=./src/lab1/workspace/filetree/FileManager.java
