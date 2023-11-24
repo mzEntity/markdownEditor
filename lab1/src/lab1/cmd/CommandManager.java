@@ -7,6 +7,7 @@ import lab1.cmd.parser.console.concrete.GlobalConsoleParser;
 import lab1.cmd.parser.console.concrete.LocalConsoleParser;
 import lab1.cmd.parser.console.concrete.global.*;
 import lab1.cmd.parser.console.concrete.local.*;
+import lab1.utils.Utils;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
 import lab1.cmd.parser.console.*;
@@ -223,7 +224,12 @@ public class CommandManager {
                 File currentFile = files[i];
                 boolean last = i == (fileCount - 1);
                 String currentPrefix = last ? "└── ": "├── ";
-                System.out.println(prefix + currentPrefix + currentFile.getName());
+                String normalizedPath = Utils.getNormalizedAbsolutePath(currentFile.getPath());
+                String suffix = "";
+                if(this.allWorkSpaces.containsKey(normalizedPath)){
+                    suffix = " *";
+                }
+                System.out.println(prefix + currentPrefix + currentFile.getName() + suffix);
                 this.hasEnd.add(last);
                 this.listAllChildFile(currentFile);
                 this.hasEnd.remove(prefixCount);

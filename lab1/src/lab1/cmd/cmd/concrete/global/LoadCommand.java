@@ -3,6 +3,7 @@ package lab1.cmd.cmd.concrete.global;
 import lab1.cmd.CommandManager;
 import lab1.cmd.cmd.GlobalScale;
 import lab1.cmd.cmd.Unskippable;
+import lab1.utils.Utils;
 import lab1.workspace.DeskTop;
 
 public class LoadCommand implements GlobalScale {
@@ -11,7 +12,7 @@ public class LoadCommand implements GlobalScale {
 
     public LoadCommand(CommandManager receiver, String filePath) {
         this.receiver = receiver;
-        this.filePath = filePath;
+        this.filePath = Utils.getNormalizedAbsolutePath(filePath);
     }
 
     @Override
