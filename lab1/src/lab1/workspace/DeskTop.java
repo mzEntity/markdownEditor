@@ -37,7 +37,7 @@ public class DeskTop {
         this.logManager = new LogManager(filePath);
         this.statsManager = new StatsManager(filePath);
 
-        this.saved = true;
+        this.saved = false;
     }
 
     public void addToHistory(Revocable cmd){

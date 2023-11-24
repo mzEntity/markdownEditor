@@ -156,7 +156,7 @@ public class FileManager {
                     newIndent = "    ";
                 } else {
                     prefix = "├── ";
-                    newIndent = "|   ";
+                    newIndent = "│   ";
                 }
                 if(indentRepeat == finished.size()){
                     finished.add(newIndent);
@@ -182,6 +182,21 @@ public class FileManager {
 
     private Map<Long, String> getFileLines(String filePath){
         Map<Long, String> lines = new HashMap<>();
+        File file = new File(filePath);
+        try{
+            if (!file.exists()) {
+                boolean created = file.createNewFile();
+                if (created) {
+                    System.out.println("文件不存在，新建文件" + filePath);
+                } else {
+                    System.out.println("无法创建文件。ERROR");
+                    return lines;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         long lineNum = 1;
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
@@ -190,7 +205,7 @@ public class FileManager {
                 lineNum++;
             }
         } catch (IOException e) {
-            System.out.println("文件不存在，新建文件" + filePath);
+            System.out.println("ERROR in READING.");
         }
         return lines;
     }

@@ -1,18 +1,18 @@
 package lab1.cmd;
 
 import lab1.cmd.cmd.concrete.global.ExitCommand;
+import lab1.cmd.cmd.concrete.global.LsCommand;
 import lab1.cmd.cmd.concrete.local.SaveCommand;
 import lab1.cmd.parser.console.concrete.GlobalConsoleParser;
 import lab1.cmd.parser.console.concrete.LocalConsoleParser;
-import lab1.cmd.parser.console.concrete.global.CloseCommandConsoleParser;
-import lab1.cmd.parser.console.concrete.global.ExitCommandConsoleParser;
-import lab1.cmd.parser.console.concrete.global.LoadCommandConsoleParser;
-import lab1.cmd.parser.console.concrete.global.OpenCommandConsoleParser;
+import lab1.cmd.parser.console.concrete.global.*;
 import lab1.cmd.parser.console.concrete.local.*;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
 import lab1.cmd.parser.console.*;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -24,12 +24,16 @@ public class CommandManager {
     private HashMap<String, LocalConsoleParser> allLocalCommands;
     private HashMap<String, GlobalConsoleParser> allGlobalCommands;
 
+    private List<Boolean> hasEnd;
+
     public CommandManager() {
         this.allWorkSpaces = new HashMap<>();
         this.allLocalCommands = new HashMap<>();
         this.allGlobalCommands = new HashMap<>();
         
         this.deskTop = null;
+
+        this.hasEnd = new ArrayList<>();
         this.initCommandMapping();
     }
 
@@ -38,6 +42,8 @@ public class CommandManager {
         this.allGlobalCommands.put("open", new OpenCommandConsoleParser());
         this.allGlobalCommands.put("exit", new ExitCommandConsoleParser());
         this.allGlobalCommands.put("close", new CloseCommandConsoleParser());
+        this.allGlobalCommands.put("list-workspace", new ListWorkspaceCommandConsoleParser());
+        this.allGlobalCommands.put("ls", new LsCommandConsoleParser());
 
         this.allLocalCommands.put("save", new SaveCommandConsoleParser());
         this.allLocalCommands.put("insert", new InsertCommandConsoleParser());
@@ -123,6 +129,18 @@ public class CommandManager {
         this.allWorkSpaces.clear();
     }
 
+    public void listWorkspace(){
+        String prefix = "  ";
+        String activePrefix = "->";
+        for(String filePath: this.allWorkSpaces.keySet()){
+            if(this.allWorkSpaces.get(filePath) == this.deskTop){
+                System.out.println(activePrefix + filePath);
+            } else {
+                System.out.println(prefix + filePath);
+            }
+        }
+    }
+
     private void saveSession(DeskTop targetDeskTop){
         if(!targetDeskTop.isSaved()){
             if(askForSave()){
@@ -173,4 +191,47 @@ public class CommandManager {
         }
     }
 
+    public void listDirectoryContents(){
+        if(this.deskTop == null) {
+            System.out.println("No active workspace.");
+            return;
+        }
+        this.hasEnd = new ArrayList<>();
+        String currentFilePath = this.deskTop.filePath;
+        File currentFile = new File(currentFilePath);
+        String parentFilePath = currentFile.getParent();
+        File parentFile = new File(parentFilePath);
+        this.listAllChildFile(parentFile);
+    }
+    private void listAllChildFile(File directory){
+        if(!directory.exists() || !directory.isDirectory()){
+            return;
+        }
+        int prefixCount = this.hasEnd.size();
+        StringBuilder prefix = new StringBuilder();
+        for(boolean ended: this.hasEnd){
+            if(ended){
+                prefix.append("    ");
+            } else {
+                prefix.append("│   ");
+            }
+        }
+        File[] files = directory.listFiles();
+        if (files != null) {
+            int fileCount = files.length;
+            for(int i = 0; i < fileCount; i++){
+                File currentFile = files[i];
+                boolean last = i == (fileCount - 1);
+                String currentPrefix = last ? "└── ": "├── ";
+                System.out.println(prefix + currentPrefix + currentFile.getName());
+                this.hasEnd.add(last);
+                this.listAllChildFile(currentFile);
+                this.hasEnd.remove(prefixCount);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+
+    }
 }
