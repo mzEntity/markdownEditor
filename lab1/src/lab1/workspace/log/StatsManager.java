@@ -1,5 +1,7 @@
 package lab1.workspace.log;
 
+import lab1.memento.Retainable;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatsManager {
+public class StatsManager implements Retainable {
     private String statFilePath;
     private String logFilePath;
     private LocalDateTime sessionStartTime;
@@ -26,22 +28,26 @@ public class StatsManager {
 
     private int statsWriteIndex;
 
-    public StatsManager(String filePath) {
-        this.statFilePath = filePath + ".stats";
-        this.logFilePath = filePath + ".logfile";
-
-        this.sessionStart();
+    public StatsManager() {
+        this.statFilePath = null;
+        this.logFilePath = null;
         this.currentWorkingFilePath = null;
         this.currentWorkingFileStartTime = null;
 
         this.workedFileNameList = new ArrayList<>();
         this.workedFileDuration = new ArrayList<>();
         this.statsWriteIndex = 0;
+    }
 
+    public void initStatsManager(String filePath){
+        this.statFilePath = filePath + ".stats";
+        this.logFilePath = filePath + ".logfile";
+        this.sessionStart();
         this.fileWorkStart(filePath);
     }
 
-    public void sessionStart(){
+
+    private void sessionStart(){
         this.sessionStartTime = LocalDateTime.now();
         this.writeSessionStart();
     }

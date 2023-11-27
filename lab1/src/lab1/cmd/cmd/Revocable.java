@@ -1,6 +1,8 @@
 package lab1.cmd.cmd;
 
-public interface Revocable extends LocalScale{
+import lab1.memento.Retainable;
+
+public interface Revocable extends LocalScale, Retainable {
 
     void undo();
 

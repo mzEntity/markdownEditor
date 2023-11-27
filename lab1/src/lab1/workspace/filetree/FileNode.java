@@ -1,8 +1,10 @@
 package lab1.workspace.filetree;
 
+import lab1.memento.Retainable;
+
 import java.util.regex.Pattern;
 
-public class FileNode {
+public class FileNode implements Retainable {
     protected FileNode parent;
     protected FileNode firstChild;
     protected FileNode prevSibling;

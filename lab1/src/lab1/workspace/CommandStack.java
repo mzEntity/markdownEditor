@@ -1,10 +1,11 @@
 package lab1.workspace;
 
 import lab1.cmd.cmd.Revocable;
+import lab1.memento.Retainable;
 
 import java.util.Stack;
 
-public class CommandStack {
+public class CommandStack implements Retainable {
     private Stack<Revocable> undoStack;
     private Stack<Revocable> redoStack;
 

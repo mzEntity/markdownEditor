@@ -1,6 +1,7 @@
 package lab1.workspace;
 
 import lab1.cmd.cmd.Revocable;
+import lab1.memento.Retainable;
 import lab1.workspace.filetree.FileManager;
 import lab1.workspace.log.LogManager;
 import lab1.workspace.log.StatsManager;
@@ -10,7 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class DeskTop {
+public class DeskTop implements Retainable {
 
     private CommandStack commandStack;
     private FileManager fileManager;
@@ -21,23 +22,19 @@ public class DeskTop {
 
     public String filePath;
 
-    public boolean isSaved() {
-        return saved;
-    }
-
-    public void setSaved(boolean saved) {
-        this.saved = saved;
-    }
-
     public DeskTop(String filePath) {
         this.filePath = filePath;
 
         this.commandStack = new CommandStack();
         this.fileManager = new FileManager(filePath);
         this.logManager = new LogManager(filePath);
-        this.statsManager = new StatsManager(filePath);
+        this.statsManager = new StatsManager();
 
         this.saved = false;
+    }
+
+    public void initDeskTop(){
+        this.statsManager.initStatsManager(filePath);
     }
 
     public void addToHistory(Revocable cmd){
@@ -182,5 +179,13 @@ public class DeskTop {
 
     public void info(String msg){
         this.logManager.info(msg);
+    }
+
+    public boolean isSaved() {
+        return saved;
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
     }
 }

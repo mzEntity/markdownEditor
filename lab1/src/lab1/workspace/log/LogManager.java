@@ -1,5 +1,7 @@
 package lab1.workspace.log;
 
+import lab1.memento.Retainable;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogManager {
+public class LogManager implements Retainable {
 
     private List<String> log;
     private String logFilePath;

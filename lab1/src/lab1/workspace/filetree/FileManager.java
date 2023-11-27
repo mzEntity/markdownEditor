@@ -1,9 +1,11 @@
 package lab1.workspace.filetree;
 
+import lab1.memento.Retainable;
+
 import java.io.*;
 import java.util.*;
 
-public class FileManager {
+public class FileManager implements Retainable {
 
     private FileNode fileTree;
     private String filePath;

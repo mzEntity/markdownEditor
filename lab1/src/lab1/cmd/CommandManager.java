@@ -7,18 +7,20 @@ import lab1.cmd.parser.console.concrete.GlobalConsoleParser;
 import lab1.cmd.parser.console.concrete.LocalConsoleParser;
 import lab1.cmd.parser.console.concrete.global.*;
 import lab1.cmd.parser.console.concrete.local.*;
+import lab1.memento.Retainable;
 import lab1.utils.Utils;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
 import lab1.cmd.parser.console.*;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-public class CommandManager {
+public class CommandManager implements Retainable {
     private HashMap<String, DeskTop> allWorkSpaces;
     private DeskTop deskTop;
 
@@ -31,11 +33,16 @@ public class CommandManager {
         this.allWorkSpaces = new HashMap<>();
         this.allLocalCommands = new HashMap<>();
         this.allGlobalCommands = new HashMap<>();
-        
-        this.deskTop = null;
 
+        this.deskTop = null;
         this.hasEnd = new ArrayList<>();
         this.initCommandMapping();
+    }
+
+    public void initCommandManager(){
+        for(String key: this.allWorkSpaces.keySet()){
+            this.allWorkSpaces.get(key).initDeskTop();
+        }
     }
 
     private void initCommandMapping(){
@@ -100,7 +107,9 @@ public class CommandManager {
             System.out.println("Workspace has already been opened.");
             return;
         }
-        this.allWorkSpaces.put(filePath, new DeskTop(filePath));
+        DeskTop d = new DeskTop(filePath);
+        d.initDeskTop();
+        this.allWorkSpaces.put(filePath, d);
         this.changeActiveWorkSpace(filePath);
     }
 
@@ -123,9 +132,15 @@ public class CommandManager {
 
     public void exit(){
         this.deskTop = null;
+        Boolean allSaved = true;
         for(String key: this.allWorkSpaces.keySet()){
             DeskTop target = this.allWorkSpaces.get(key);
-            this.saveSession(target);
+            boolean saved = this.saveSession(target);
+            if(!saved) allSaved = false;
+        }
+        if(allSaved){
+            Utils.saveObject("./memento", this);
+            System.out.println("All saved. Save all workspaces.");
         }
         this.allWorkSpaces.clear();
     }
@@ -142,14 +157,18 @@ public class CommandManager {
         }
     }
 
-    private void saveSession(DeskTop targetDeskTop){
+    private boolean saveSession(DeskTop targetDeskTop){
+        boolean saved = true;
         if(!targetDeskTop.isSaved()){
             if(askForSave()){
                 targetDeskTop.saveFile();
                 targetDeskTop.setSaved(true);
                 targetDeskTop.writeLogStats();
+            } else {
+                saved = false;
             }
         }
+        return saved;
     }
 
     private boolean askForSave(){
