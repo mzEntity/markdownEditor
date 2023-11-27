@@ -16,7 +16,6 @@ public class DeskTop implements Retainable {
     private CommandStack commandStack;
     private FileManager fileManager;
     private LogManager logManager;
-    private StatsManager statsManager;
 
     private boolean saved;
 
@@ -28,13 +27,8 @@ public class DeskTop implements Retainable {
         this.commandStack = new CommandStack();
         this.fileManager = new FileManager(filePath);
         this.logManager = new LogManager(filePath);
-        this.statsManager = new StatsManager();
 
         this.saved = false;
-    }
-
-    public void initDeskTop(){
-        this.statsManager.initStatsManager(filePath);
     }
 
     public void addToHistory(Revocable cmd){
@@ -47,17 +41,12 @@ public class DeskTop implements Retainable {
 
     public boolean saveFile(){
         boolean success = this.fileManager.saveFile();
-        if(success){
-            String filePath = this.statsManager.getCurrentWorkingFilePath();
-            this.statsManager.fileWorkEnd();
-            this.statsManager.fileWorkStart(filePath);
-        }
+
         return success;
     }
 
     public void writeLogStats(){
         this.logManager.writeLog();
-        this.statsManager.writeSessionStat();
     }
 
     public void insertLine(long lineNumber, String prefix, String content){
@@ -143,18 +132,7 @@ public class DeskTop implements Retainable {
         }
     }
 
-    public void showAllStat(){
-        List<String> stats = this.statsManager.getAllStat();
-        for(String stat: stats){
-            System.out.println(stat);
-        }
-    }
 
-    public void showCurrentStat(){
-        String currentStat = this.statsManager.getCurrentStat();
-        if(currentStat == null) return;
-        System.out.println(currentStat);
-    }
 
     public boolean undoCommand(){
         Revocable cmd = this.commandStack.undoCommand();

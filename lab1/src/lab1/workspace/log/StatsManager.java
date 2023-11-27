@@ -9,19 +9,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class StatsManager implements Retainable {
     private String statFilePath;
-    private String logFilePath;
     private LocalDateTime sessionStartTime;
 
-    private String currentWorkingFilePath;
-    private LocalDateTime currentWorkingFileStartTime;
-
-    public String getCurrentWorkingFilePath() {
-        return currentWorkingFilePath;
-    }
+    private HashMap<String, LocalDateTime> currentWorkingFileStartTime;
 
     private List<String> workedFileNameList;
     private List<Duration> workedFileDuration;
@@ -29,21 +24,17 @@ public class StatsManager implements Retainable {
     private int statsWriteIndex;
 
     public StatsManager() {
-        this.statFilePath = null;
-        this.logFilePath = null;
-        this.currentWorkingFilePath = null;
-        this.currentWorkingFileStartTime = null;
+        this.statFilePath = "./stats.txt";
+        this.currentWorkingFileStartTime = new HashMap<>();
 
         this.workedFileNameList = new ArrayList<>();
         this.workedFileDuration = new ArrayList<>();
         this.statsWriteIndex = 0;
     }
 
-    public void initStatsManager(String filePath){
-        this.statFilePath = filePath + ".stats";
-        this.logFilePath = filePath + ".logfile";
+    public void initStatsManager(){
         this.sessionStart();
-        this.fileWorkStart(filePath);
+        this.fileWorkStart(this.statFilePath);
     }
 
 
@@ -53,28 +44,27 @@ public class StatsManager implements Retainable {
     }
 
     public void fileWorkStart(String filePath){
-        this.currentWorkingFilePath = filePath;
-        currentWorkingFileStartTime = LocalDateTime.now();
+        this.currentWorkingFileStartTime.put(filePath, LocalDateTime.now());
     }
 
-    public void fileWorkEnd(){
-        if(this.currentWorkingFileStartTime == null) return;
+    public void fileWorkEnd(String filePath){
+        if(!this.currentWorkingFileStartTime.containsKey(filePath)) return;
 
         LocalDateTime endTime = LocalDateTime.now();
-        Duration duration = Duration.between(this.currentWorkingFileStartTime, endTime);
-        this.workedFileNameList.add(this.currentWorkingFilePath);
+        LocalDateTime startTime = this.currentWorkingFileStartTime.get(filePath);
+        Duration duration = Duration.between(startTime, endTime);
+        this.workedFileNameList.add(filePath);
         this.workedFileDuration.add(duration);
 
-        this.currentWorkingFilePath = null;
-        this.currentWorkingFileStartTime = null;
+        this.currentWorkingFileStartTime.remove(filePath);
     }
 
     public String sessionInfo(){
         return "session start at " + this.getFormattedTime(this.sessionStartTime);
     }
 
-    public void writeSessionStart(String filePath){
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))){
+    public void writeSessionStart(){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true))){
             String info = this.sessionInfo();
             writer.write(info);
             writer.newLine();
@@ -83,10 +73,6 @@ public class StatsManager implements Retainable {
         }
     }
 
-    public void writeSessionStart(){
-        this.writeSessionStart(this.statFilePath);
-        this.writeSessionStart(this.logFilePath);
-    }
     public void writeSessionStat(){
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true))){
             List<String> allStats = this.getAllFileStats();
@@ -99,6 +85,41 @@ public class StatsManager implements Retainable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getAllStat(){
+        List<String> allStats = new ArrayList<>();
+        allStats.add(this.sessionInfo());
+        List<String> allFileStats = this.getAllFileStats();
+        allStats.addAll(allFileStats);
+        return allStats;
+    }
+
+    private List<String> getAllFileStats(){
+        int workedFileCount = this.workedFileNameList.size();
+        List<String> allStats = new ArrayList<>();
+        for(int i = 0; i < workedFileCount; i++){
+            String statLog = this.workedFileNameList.get(i) + " " + this.durationToString(this.workedFileDuration.get(i));
+            allStats.add(statLog);
+        }
+        return allStats;
+    }
+
+    public String getFileStat(String filePath){
+        if(!this.currentWorkingFileStartTime.containsKey(filePath)){
+            return null;
+        }
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = this.currentWorkingFileStartTime.get(filePath);
+        Duration duration = Duration.between(startTime, endTime);
+        String result = filePath + " " + this.durationToString(duration);
+        return result;
+    }
+
+    public String getFormattedTime(LocalDateTime time){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
+        String formattedDateTime = time.format(formatter);
+        return formattedDateTime;
     }
 
     private String durationToString(Duration duration){
@@ -118,47 +139,5 @@ public class StatsManager implements Retainable {
         } else {
             return minutes + "分钟";
         }
-    }
-
-    public List<String> getAllStat(){
-        int workedFileCount = this.workedFileNameList.size();
-        List<String> allStats = new ArrayList<>();
-        allStats.add(this.sessionInfo());
-        List<String> allFileStats = this.getAllFileStats();
-        allStats.addAll(allFileStats);
-        return allStats;
-    }
-
-    private List<String> getAllFileStats(){
-        int workedFileCount = this.workedFileNameList.size();
-        List<String> allStats = new ArrayList<>();
-        for(int i = 0; i < workedFileCount; i++){
-            String statLog = this.workedFileNameList.get(i) + " " + this.durationToString(this.workedFileDuration.get(i));
-            allStats.add(statLog);
-        }
-        return allStats;
-    }
-
-    public String getCurrentStat(){
-        if(this.currentWorkingFileStartTime == null){
-            System.out.println("You have not start working on any file yet.");
-            return null;
-        }
-        LocalDateTime endTime = LocalDateTime.now();
-        Duration duration = Duration.between(this.currentWorkingFileStartTime, endTime);
-        String result = this.currentWorkingFilePath + " " + this.durationToString(duration);
-        return result;
-    }
-
-    public String getFormattedTime(LocalDateTime time){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
-        String formattedDateTime = time.format(formatter);
-        return formattedDateTime;
-    }
-
-    private String getCurrentTime(){
-        LocalDateTime now = LocalDateTime.now();
-        String formattedDateTime = this.getFormattedTime(now);
-        return formattedDateTime;
     }
 }

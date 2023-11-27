@@ -1,7 +1,6 @@
 package lab1.cmd;
 
 import lab1.cmd.cmd.concrete.global.ExitCommand;
-import lab1.cmd.cmd.concrete.global.LsCommand;
 import lab1.cmd.cmd.concrete.local.SaveCommand;
 import lab1.cmd.parser.console.concrete.GlobalConsoleParser;
 import lab1.cmd.parser.console.concrete.LocalConsoleParser;
@@ -11,10 +10,9 @@ import lab1.memento.Retainable;
 import lab1.utils.Utils;
 import lab1.workspace.DeskTop;
 import lab1.cmd.cmd.*;
-import lab1.cmd.parser.console.*;
+import lab1.workspace.log.StatsManager;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,21 +26,21 @@ public class CommandManager implements Retainable {
     private HashMap<String, GlobalConsoleParser> allGlobalCommands;
 
     private List<Boolean> hasEnd;
+    private StatsManager statsManager;
 
     public CommandManager() {
         this.allWorkSpaces = new HashMap<>();
         this.allLocalCommands = new HashMap<>();
         this.allGlobalCommands = new HashMap<>();
 
+        this.statsManager = new StatsManager();
         this.deskTop = null;
         this.hasEnd = new ArrayList<>();
         this.initCommandMapping();
     }
 
     public void initCommandManager(){
-        for(String key: this.allWorkSpaces.keySet()){
-            this.allWorkSpaces.get(key).initDeskTop();
-        }
+        this.statsManager.initStatsManager();
     }
 
     private void initCommandMapping(){
@@ -52,6 +50,7 @@ public class CommandManager implements Retainable {
         this.allGlobalCommands.put("close", new CloseCommandConsoleParser());
         this.allGlobalCommands.put("list-workspace", new ListWorkspaceCommandConsoleParser());
         this.allGlobalCommands.put("ls", new LsCommandConsoleParser());
+        this.allGlobalCommands.put("stats", new StatsCommandConsoleParser());
 
         this.allLocalCommands.put("save", new SaveCommandConsoleParser());
         this.allLocalCommands.put("insert", new InsertCommandConsoleParser());
@@ -64,7 +63,6 @@ public class CommandManager implements Retainable {
         this.allLocalCommands.put("dir-tree", new DirTreeCommandConsoleParser());
         this.allLocalCommands.put("list-tree", new ListTreeCommandConsoleParser());
         this.allLocalCommands.put("history", new HistoryCommandConsoleParser());
-        this.allLocalCommands.put("stats", new StatsCommandConsoleParser());
     }
 
 
@@ -95,11 +93,28 @@ public class CommandManager implements Retainable {
             if(cmd instanceof SaveCommand){
                 deskTop.setSaved(true);
                 deskTop.writeLogStats();
+
+                String filePath = this.deskTop.filePath;
+                this.statsManager.fileWorkEnd(filePath);
+                this.statsManager.fileWorkStart(filePath);
             }
         }
 
 
         return !(cmd instanceof ExitCommand);
+    }
+
+    public void showAllStat(){
+        List<String> stats = this.statsManager.getAllStat();
+        for(String stat: stats){
+            System.out.println(stat);
+        }
+    }
+
+    public void showCurrentStat(){
+        String currentStat = this.statsManager.getFileStat(this.deskTop.filePath);
+        if(currentStat == null) return;
+        System.out.println(currentStat);
     }
 
     public void load(String filePath){
@@ -108,9 +123,9 @@ public class CommandManager implements Retainable {
             return;
         }
         DeskTop d = new DeskTop(filePath);
-        d.initDeskTop();
         this.allWorkSpaces.put(filePath, d);
         this.changeActiveWorkSpace(filePath);
+        this.statsManager.fileWorkStart(filePath);
     }
 
     public void open(String filePath){
@@ -137,7 +152,11 @@ public class CommandManager implements Retainable {
             DeskTop target = this.allWorkSpaces.get(key);
             boolean saved = this.saveSession(target);
             if(!saved) allSaved = false;
+            else {
+                this.statsManager.fileWorkEnd(key);
+            }
         }
+        this.statsManager.writeSessionStat();
         if(allSaved){
             Utils.saveObject("./memento", this);
             System.out.println("All saved. Save all workspaces.");

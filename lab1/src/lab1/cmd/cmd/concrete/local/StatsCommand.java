@@ -1,17 +1,19 @@
 package lab1.cmd.cmd.concrete.local;
 
+import lab1.cmd.CommandManager;
 import lab1.cmd.cmd.Executable;
+import lab1.cmd.cmd.GlobalScale;
 import lab1.cmd.cmd.LocalScale;
 import lab1.workspace.DeskTop;
 
-public class StatsCommand implements LocalScale {
+public class StatsCommand implements GlobalScale {
 
     public static final int STATS_ALL = 0;
     public static final int STATS_CURRENT = 1;
-    private DeskTop receiver;
+    private CommandManager receiver;
     private Strategy strategy;
 
-    public StatsCommand(DeskTop receiver, int kind) {
+    public StatsCommand(CommandManager receiver, int kind) {
         this.receiver = receiver;
         switch (kind){
             case STATS_ALL:
