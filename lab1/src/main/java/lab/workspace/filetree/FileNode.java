@@ -162,7 +162,9 @@ public class FileNode implements Retainable {
     }
 
     protected void changePosition(long startLineNumber, long offset){
-        assert (this.finishNumber >= startLineNumber);
+        if(this.finishNumber < startLineNumber){
+            return;
+        }
         if(this.lineNumber >= startLineNumber){
             this.lineNumber += offset;
         }
