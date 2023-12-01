@@ -1,11 +1,8 @@
 package lab.cmd;
 
+import lab.client.ConsoleManager;
 import lab.cmd.cmd.concrete.global.ExitCommand;
 import lab.cmd.cmd.concrete.local.SaveCommand;
-import lab.cmd.parser.console.concrete.GlobalConsoleParser;
-import lab.cmd.parser.console.concrete.LocalConsoleParser;
-import lab.cmd.parser.console.concrete.global.*;
-import lab.cmd.parser.console.concrete.local.*;
 import lab.memento.Retainable;
 import lab.utils.Utils;
 import lab.workspace.DeskTop;
@@ -16,7 +13,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 public class CommandManager implements Retainable {
     private HashMap<String, DeskTop> allWorkSpaces;
@@ -25,12 +21,14 @@ public class CommandManager implements Retainable {
     private List<Boolean> hasEnd;
     private StatsManager statsManager;
 
+    private String basePath;
+
     public CommandManager() {
         this.allWorkSpaces = new HashMap<>();
-
         this.statsManager = new StatsManager();
         this.deskTop = null;
         this.hasEnd = new ArrayList<>();
+        this.basePath = Utils.getNormalizedAbsolutePath(".");
     }
 
     public void initCommandManager(){
@@ -94,6 +92,7 @@ public class CommandManager implements Retainable {
     public void load(String filePath){
         if(this.allWorkSpaces.containsKey(filePath)){
             System.out.println("Workspace has already been opened.");
+            this.changeActiveWorkSpace(filePath);
             return;
         }
         DeskTop d = new DeskTop(filePath);
@@ -140,13 +139,21 @@ public class CommandManager implements Retainable {
     }
 
     public void listWorkspace(){
-        String prefix = "  ";
-        String activePrefix = "->";
+        String prefix = "   ";
+        String activePrefix = "-> ";
         for(String filePath: this.allWorkSpaces.keySet()){
-            if(this.allWorkSpaces.get(filePath) == this.deskTop){
-                System.out.println(activePrefix + filePath);
+            DeskTop target = this.allWorkSpaces.get(filePath);
+            String suffix = " *";
+            String relativeFilePath = Utils.getRelativePath(filePath, this.basePath);
+            if(target == this.deskTop){
+                System.out.print(activePrefix + relativeFilePath);
             } else {
-                System.out.println(prefix + filePath);
+                System.out.print(prefix + relativeFilePath);
+            }
+            if(!target.isSaved()){
+                System.out.println(suffix);
+            } else {
+                System.out.println();
             }
         }
     }
@@ -154,7 +161,8 @@ public class CommandManager implements Retainable {
     private boolean saveSession(DeskTop targetDeskTop){
         boolean saved = true;
         if(!targetDeskTop.isSaved()){
-            if(askForSave()){
+            String filePath = Utils.getRelativePath(targetDeskTop.filePath, basePath);
+            if(askForSave(filePath)){
                 targetDeskTop.saveFile();
                 targetDeskTop.setSaved(true);
                 targetDeskTop.writeLogStats();
@@ -165,12 +173,11 @@ public class CommandManager implements Retainable {
         return saved;
     }
 
-    private boolean askForSave(){
-        System.out.println("You haven't saved the file yet. Do you want to save it?[Y/N]");
-        Scanner scanner = new Scanner(System.in);
+    private boolean askForSave(String filePath){
+        System.out.printf("Do you want to save the workspace (%s) [Y/N] ?\n", filePath);
         String choice = null;
         do{
-            String inputStr = scanner.nextLine();
+            String inputStr = ConsoleManager.getConsoleManager().getLine();
             if(inputStr.length() <= 0){
                 choice = "0";
             } else {

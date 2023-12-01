@@ -1,5 +1,11 @@
 package lab.client;
 
+import lab.utils.Utils;
+
+import java.io.Console;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Scanner;
 
@@ -7,17 +13,55 @@ public class ConsoleManager {
     private InputManager inputManager;
     private Scanner scanner;
 
-    public ConsoleManager() {
+    private InputStream inputStream;
+    private OutputStream outputStream;
+
+    private static ConsoleManager consoleManager = new ConsoleManager();
+
+    public static ConsoleManager getConsoleManager(){
+        return consoleManager;
+    }
+
+    public static void initConsoleManager(InputStream inputStream, OutputStream outputStream){
+        consoleManager.inputStream = inputStream;
+        consoleManager.outputStream = outputStream;
+
+        if(inputStream != null){
+            System.setIn(inputStream);
+        }
+        if(outputStream != null){
+            System.setOut(new PrintStream(outputStream));
+        }
+
+        consoleManager.scanner = new Scanner(System.in);
+    }
+
+    public static void restoreConsoleManager(){
+        if(consoleManager.inputStream != null){
+            System.setIn(consoleManager.inputStream);
+        }
+        if(consoleManager.outputStream != null){
+            System.setOut(new PrintStream(consoleManager.outputStream));
+        }
+        consoleManager.scanner = new Scanner(System.in);
+    }
+
+
+    private ConsoleManager(){
         this.inputManager = new InputManager();
         this.scanner = new Scanner(System.in);
     }
 
+
+
     public String welcomeStr(){
-        return "Hello world";
+        StringBuilder stringBuilder = new StringBuilder("Hello World!\n");
+        stringBuilder.append("Current work directory: ").append(Utils.getNormalizedAbsolutePath("."));
+        return stringBuilder.toString();
     }
 
     public List<String> getRequest(){
-        String inputStr = this.raw_input(">");
+        String inputStr = this.getLine();
         List<String> result = this.inputManager.splitInputStr(inputStr);
         return result;
     }
@@ -26,10 +70,8 @@ public class ConsoleManager {
         return this.inputManager.splitInputStr(inputStr);
     }
 
-   private String raw_input(String prompt){
-        System.out.print(prompt);
-        String inputStr = this.scanner.nextLine();
-        return inputStr;
+   public String getLine(){
+        return this.scanner.nextLine();
     }
 
     public static void main(String[] args) {

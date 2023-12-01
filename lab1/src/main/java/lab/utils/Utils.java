@@ -1,6 +1,7 @@
 package lab.utils;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,14 @@ import java.util.List;
 public class Utils {
     public static String getNormalizedAbsolutePath(String path){
         return Paths.get(path).toAbsolutePath().normalize().toString();
+    }
+
+    public static String getRelativePath(String absolutePath, String basePath) {
+        Path absolute = Paths.get(absolutePath).normalize();
+        Path base = Paths.get(basePath).normalize();
+
+        Path relative = base.relativize(absolute);
+        return relative.toString();
     }
 
     public static List<String> getFileLines(String filePath, String charset){
