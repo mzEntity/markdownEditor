@@ -74,7 +74,25 @@ public class Utils {
         }
         return null;
     }
+
+    public static void cleanFolder(String folderPath) {
+        File folder = new File(folderPath);
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        cleanFolder(file.getAbsolutePath());
+                        file.delete();
+                    } else {
+                        file.delete();
+                    }
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        System.out.println(Utils.getNormalizedAbsolutePath("./src/lab1/client"));
+        Utils.cleanFolder("./lab1testcase111");
     }
 }

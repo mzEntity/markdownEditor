@@ -1,5 +1,6 @@
 package lab.client;
 
+import lab.Config;
 import lab.cmd.CommandManager;
 import lab.utils.Utils;
 
@@ -13,6 +14,7 @@ public class Client {
 
     public Client() {
         this.consoleManager = ConsoleManager.getConsoleManager();
+        this.commandManager = null;
     }
 
     private void initClient(){
@@ -27,20 +29,22 @@ public class Client {
     }
 
     private void readMemento(){
-        String filePath = "./memento";
+        String filePath = Config.mementoFilePathRelative;
         File file = new File(filePath);
         if(file.exists()){
             System.out.println("memento exists. restore.");
             this.initClient(filePath);
-        } else {
-            System.out.println("memento doesn't exist.");
-            this.initClient();
         }
     }
 
     public void startSession(){
         System.out.println(this.consoleManager.welcomeStr());
-        this.readMemento();
+        if(Config.enableMemento){
+            this.readMemento();
+        }
+        if(this.commandManager == null){
+            this.initClient();
+        }
         while(true){
             List<String> request = this.consoleManager.getRequest();
             boolean continueEnter = this.commandManager.dealWithRequest(request);
@@ -61,7 +65,7 @@ public class Client {
                 cmds.add(line);
             }
         } catch (IOException e) {
-            System.out.println("文件不存在，新建文件" + filePath);
+            System.out.println("文件不存在，新建文件 " + filePath);
         }
         return cmds;
     }
@@ -74,6 +78,7 @@ public class Client {
     }
 
     public static void main(String[] args) {
+        Config.setup();
 
         InputStream inputStream = null;
         OutputStream outputStream = null;

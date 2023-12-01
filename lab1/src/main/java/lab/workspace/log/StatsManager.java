@@ -1,5 +1,6 @@
 package lab.workspace.log;
 
+import lab.Config;
 import lab.memento.Retainable;
 
 import java.io.BufferedWriter;
@@ -24,7 +25,7 @@ public class StatsManager implements Retainable {
     private int statsWriteIndex;
 
     public StatsManager() {
-        this.statFilePath = "./stats.txt";
+        this.statFilePath = Config.statsFilePathRelative;
         this.currentWorkingFileStartTime = new HashMap<>();
 
         this.workedFileNameList = new ArrayList<>();

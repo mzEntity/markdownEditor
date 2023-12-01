@@ -1,6 +1,8 @@
 package lab.workspace.log;
 
+import lab.Config;
 import lab.memento.Retainable;
+import lab.utils.Utils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -19,7 +21,8 @@ public class LogManager implements Retainable {
 
     public LogManager(String filePath) {
         this.log = new ArrayList<>();
-        this.logFilePath = filePath + ".logfile";
+        String relativePath = Utils.getRelativePath(filePath, Config.currentWorkDirectoryPathAbsolute);
+        this.logFilePath = Config.tempFolderPathRelative + Config.separator + relativePath + Config.logFileSuffix;
         this.writeStartIndex = 0;
     }
 
@@ -51,8 +54,6 @@ public class LogManager implements Retainable {
         if(startIndex < 0) startIndex = 0;
         return this.log.subList(startIndex, endIndex);
     }
-
-
 
     public String getFormattedTime(LocalDateTime time){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");

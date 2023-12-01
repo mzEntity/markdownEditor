@@ -1,5 +1,6 @@
 package lab.cmd;
 
+import lab.Config;
 import lab.client.ConsoleManager;
 import lab.cmd.cmd.concrete.global.ExitCommand;
 import lab.cmd.cmd.concrete.local.SaveCommand;
@@ -131,8 +132,8 @@ public class CommandManager implements Retainable {
             }
         }
         this.statsManager.writeSessionStat();
-        if(allSaved){
-            Utils.saveObject("./memento", this);
+        if(allSaved && Config.enableMemento){
+            Utils.saveObject(Config.mementoFilePathRelative, this);
             System.out.println("All saved. Save all workspaces.");
         }
         this.allWorkSpaces.clear();

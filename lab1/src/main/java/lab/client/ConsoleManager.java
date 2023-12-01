@@ -1,5 +1,6 @@
 package lab.client;
 
+import lab.Config;
 import lab.utils.Utils;
 
 import java.io.Console;
@@ -46,7 +47,6 @@ public class ConsoleManager {
         consoleManager.scanner = new Scanner(System.in);
     }
 
-
     private ConsoleManager(){
         this.inputManager = new InputManager();
         this.scanner = new Scanner(System.in);
@@ -56,7 +56,7 @@ public class ConsoleManager {
 
     public String welcomeStr(){
         StringBuilder stringBuilder = new StringBuilder("Hello World!\n");
-        stringBuilder.append("Current work directory: ").append(Utils.getNormalizedAbsolutePath("."));
+        stringBuilder.append("Current work directory: ").append(Config.currentWorkDirectoryPathAbsolute);
         return stringBuilder.toString();
     }
 
