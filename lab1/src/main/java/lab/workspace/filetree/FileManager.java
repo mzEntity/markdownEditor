@@ -191,9 +191,7 @@ public class FileManager implements Retainable {
         try{
             if (!file.exists()) {
                 boolean created = file.createNewFile();
-                if (created) {
-                    System.out.println("文件不存在，新建文件" + filePath);
-                } else {
+                if (!created) {
                     System.out.println("无法创建文件。ERROR");
                     return lines;
                 }

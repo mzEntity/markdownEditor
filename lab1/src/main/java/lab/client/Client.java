@@ -65,7 +65,6 @@ public class Client {
                 cmds.add(line);
             }
         } catch (IOException e) {
-            System.out.println("文件不存在，新建文件 " + filePath);
         }
         return cmds;
     }

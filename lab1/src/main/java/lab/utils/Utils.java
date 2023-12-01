@@ -19,6 +19,11 @@ public class Utils {
         return relative.toString();
     }
 
+    public static String processPath(String path){
+        String newPath = path.replace('/', '_').replace('\\', '_');
+        return newPath;
+    }
+
     public static List<String> getFileLines(String filePath, String charset){
         List<String> content = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), charset))) {

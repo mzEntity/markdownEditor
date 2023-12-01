@@ -3,6 +3,7 @@ package lab.client;
 import lab.Config;
 import lab.utils.FileDiff;
 import lab.utils.Utils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,11 +12,20 @@ import java.io.*;
 
 public class ClientTest {
 
+    private static String testFolder = "./test";
+
     @BeforeEach
     public void setup(){
         Utils.cleanFolder(Config.tempFolderPathRelative);
+        Utils.cleanFolder(testFolder);
         Config.setup();
         Config.enableMemento = false;
+    }
+
+    @AfterEach
+    public void cleanup(){
+        Utils.cleanFolder(Config.tempFolderPathRelative);
+        Utils.cleanFolder(testFolder);
     }
 
     @Test

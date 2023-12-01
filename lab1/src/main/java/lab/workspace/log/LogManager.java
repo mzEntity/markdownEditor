@@ -22,7 +22,8 @@ public class LogManager implements Retainable {
     public LogManager(String filePath) {
         this.log = new ArrayList<>();
         String relativePath = Utils.getRelativePath(filePath, Config.currentWorkDirectoryPathAbsolute);
-        this.logFilePath = Config.tempFolderPathRelative + Config.separator + relativePath + Config.logFileSuffix;
+        String logFileName = Utils.processPath(relativePath);
+        this.logFilePath = Config.tempFolderPathRelative + Config.separator + logFileName + Config.logFileSuffix;
         this.writeStartIndex = 0;
     }
 
