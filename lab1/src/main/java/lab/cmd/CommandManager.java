@@ -121,7 +121,6 @@ public class CommandManager implements Retainable {
     }
 
     public void exit(){
-        this.deskTop = null;
         Boolean allSaved = true;
         for(String key: this.allWorkSpaces.keySet()){
             DeskTop target = this.allWorkSpaces.get(key);

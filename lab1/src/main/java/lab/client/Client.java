@@ -84,8 +84,8 @@ public class Client {
         OutputStream outputStream = null;
 
         try{
-            File inputFile = new File("./lab2testcase/case1_input.txt");
-            File outputFile = new File("./lab2testcase/case1_output.txt");
+            File inputFile = new File("./lab2testcase/case5_input.txt");
+            File outputFile = new File("./lab2testcase/case5_output.txt");
 
             inputStream = new FileInputStream(inputFile);
             outputStream = new FileOutputStream(outputFile);
