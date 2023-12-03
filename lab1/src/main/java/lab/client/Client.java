@@ -52,63 +52,9 @@ public class Client {
         }
     }
 
-    public void executeTest(String filePath){
-        List<String> tests = this.getTestFile(filePath);
-        this.executeTest(tests);
-    }
-
-    private List<String> getTestFile(String filePath){
-        List<String> cmds = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
-            String line;
-            while ((line = reader.readLine()) != null) {
-                cmds.add(line);
-            }
-        } catch (IOException e) {
-        }
-        return cmds;
-    }
-
-    private void executeTest(List<String> cmdList){
-        for(String request: cmdList){
-            List<String> requestList = this.consoleManager.splitInputStr(request);
-            this.commandManager.dealWithRequest(requestList);
-        }
-    }
-
     public static void main(String[] args) {
         Config.setup();
-
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
-
-        try{
-            File inputFile = new File("./lab2testcase/case5_input.txt");
-            File outputFile = new File("./lab2testcase/case5_output.txt");
-
-            inputStream = new FileInputStream(inputFile);
-            outputStream = new FileOutputStream(outputFile);
-
-            ConsoleManager.initConsoleManager(inputStream, outputStream);
-
-            Client client = new Client();
-            client.startSession();
-
-        } catch (IOException e){
-            e.printStackTrace();
-        } finally {
-            ConsoleManager.restoreConsoleManager();
-            try {
-                inputStream.close();
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-//        client.executeTest("test1_cmd.txt");
-//        client.executeTest("test2_cmd.txt");
-//        client.executeTest("test3_cmd.txt");
-//        client.executeTest("test4_cmd.txt");
-//        client.executeTest("test5_cmd.txt");
+        Client client = new Client();
+        client.startSession();
     }
 }

@@ -104,7 +104,9 @@ public class CommandManager implements Retainable {
     }
 
     public void open(String filePath){
-        this.changeActiveWorkSpace(filePath);
+        if(!this.changeActiveWorkSpace(filePath)){
+            System.out.println("不存在该工作区：" + filePath);
+        }
     }
 
     public void close(){

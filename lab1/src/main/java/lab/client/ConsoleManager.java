@@ -52,8 +52,6 @@ public class ConsoleManager {
         this.scanner = new Scanner(System.in);
     }
 
-
-
     public String welcomeStr(){
         StringBuilder stringBuilder = new StringBuilder("Hello World!\n");
         stringBuilder.append("Current work directory: ").append(Config.currentWorkDirectoryPathAbsolute);
@@ -64,10 +62,6 @@ public class ConsoleManager {
         String inputStr = this.getLine();
         List<String> result = this.inputManager.splitInputStr(inputStr);
         return result;
-    }
-
-    public List<String> splitInputStr(String inputStr){
-        return this.inputManager.splitInputStr(inputStr);
     }
 
    public String getLine(){
