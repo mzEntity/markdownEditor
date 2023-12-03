@@ -24,6 +24,7 @@ public class ConsoleManager {
     }
 
     public static void initConsoleManager(InputStream inputStream, OutputStream outputStream){
+        Config.interactionMode = false;
         consoleManager.inputStream = inputStream;
         consoleManager.outputStream = outputStream;
 
@@ -59,6 +60,9 @@ public class ConsoleManager {
     }
 
     public List<String> getRequest(){
+        if(Config.interactionMode){
+            System.out.print(Config.interactPrompt);
+        }
         String inputStr = this.getLine();
         List<String> result = this.inputManager.splitInputStr(inputStr);
         return result;

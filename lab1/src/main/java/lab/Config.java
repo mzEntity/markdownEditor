@@ -18,6 +18,9 @@ public class Config {
 
     public static boolean enableMemento = true;
 
+    public static boolean interactionMode = true;
+    public static String interactPrompt = "> ";
+
     public static void setup(){
         File f = new File(tempFolderPathRelative);
         if(!f.exists()){
