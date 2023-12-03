@@ -29,7 +29,7 @@ public class LogManager implements Retainable {
 
 
     public void info(String msg){
-        String logMsg = this.getCurrentTime() + " " + msg;
+        String logMsg = Utils.getCurrentTime() + " " + msg;
         this.log.add(logMsg);
     }
 
@@ -54,17 +54,5 @@ public class LogManager implements Retainable {
         int startIndex = endIndex - logCount;
         if(startIndex < 0) startIndex = 0;
         return this.log.subList(startIndex, endIndex);
-    }
-
-    public String getFormattedTime(LocalDateTime time){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
-        String formattedDateTime = time.format(formatter);
-        return formattedDateTime;
-    }
-
-    private String getCurrentTime(){
-        LocalDateTime now = LocalDateTime.now();
-        String formattedDateTime = this.getFormattedTime(now);
-        return formattedDateTime;
     }
 }

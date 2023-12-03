@@ -1,6 +1,7 @@
 package lab.cmd;
 
 import lab.client.InputManager;
+import lab.utils.Utils;
 import lab.workspace.DeskTop;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +18,7 @@ public class CommandFactoryTest {
     public static void setup(){
         inputManager = new InputManager();
         commandManager = new CommandManager();
-        deskTop = new DeskTop("demo");
+        deskTop = new DeskTop(Utils.getNormalizedAbsolutePath("./demo.txt"));
     }
 
     @Test

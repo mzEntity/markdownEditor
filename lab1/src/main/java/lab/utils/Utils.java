@@ -3,6 +3,8 @@ package lab.utils;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,6 +97,24 @@ public class Utils {
                 }
             }
         }
+    }
+
+    public static String getFormattedTime(LocalDateTime time){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
+        String formattedDateTime = time.format(formatter);
+        return formattedDateTime;
+    }
+
+    public static LocalDateTime getLocalTime(String formattedTime){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(formattedTime, formatter);
+        return localDateTime;
+    }
+
+    public static String getCurrentTime(){
+        LocalDateTime now = LocalDateTime.now();
+        String formattedDateTime = Utils.getFormattedTime(now);
+        return formattedDateTime;
     }
 
     public static void main(String[] args) {

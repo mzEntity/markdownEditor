@@ -2,6 +2,7 @@ package lab.workspace.log;
 
 import lab.Config;
 import lab.memento.Retainable;
+import lab.utils.Utils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -35,7 +36,6 @@ public class StatsManager implements Retainable {
 
     public void initStatsManager(){
         this.sessionStart();
-        this.fileWorkStart(this.statFilePath);
     }
 
 
@@ -61,10 +61,10 @@ public class StatsManager implements Retainable {
     }
 
     public String sessionInfo(){
-        return "session start at " + this.getFormattedTime(this.sessionStartTime);
+        return "session start at " + Utils.getFormattedTime(this.sessionStartTime);
     }
 
-    public void writeSessionStart(){
+    private void writeSessionStart(){
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true))){
             String info = this.sessionInfo();
             writer.write(info);
@@ -74,7 +74,7 @@ public class StatsManager implements Retainable {
         }
     }
 
-    public void writeSessionStat(){
+    public void writeSessionStats(){
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.statFilePath, true))){
             List<String> allStats = this.getAllFileStats();
             int statsCount = allStats.size();
@@ -88,7 +88,7 @@ public class StatsManager implements Retainable {
         }
     }
 
-    public List<String> getAllStat(){
+    public List<String> getAllStats(){
         List<String> allStats = new ArrayList<>();
         allStats.add(this.sessionInfo());
         List<String> allFileStats = this.getAllFileStats();
@@ -106,7 +106,7 @@ public class StatsManager implements Retainable {
         return allStats;
     }
 
-    public String getFileStat(String filePath){
+    public String getFileStats(String filePath){
         if(!this.currentWorkingFileStartTime.containsKey(filePath)){
             return null;
         }
@@ -117,11 +117,7 @@ public class StatsManager implements Retainable {
         return result;
     }
 
-    public String getFormattedTime(LocalDateTime time){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
-        String formattedDateTime = time.format(formatter);
-        return formattedDateTime;
-    }
+
 
     private String durationToString(Duration duration){
         long minutes = duration.toMinutes();

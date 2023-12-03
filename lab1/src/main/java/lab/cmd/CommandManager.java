@@ -78,14 +78,14 @@ public class CommandManager implements Retainable {
     }
 
     public void showAllStat(){
-        List<String> stats = this.statsManager.getAllStat();
+        List<String> stats = this.statsManager.getAllStats();
         for(String stat: stats){
             System.out.println(stat);
         }
     }
 
     public void showCurrentStat(){
-        String currentStat = this.statsManager.getFileStat(this.deskTop.filePath);
+        String currentStat = this.statsManager.getFileStats(this.deskTop.filePath);
         if(currentStat == null) return;
         System.out.println(currentStat);
     }
@@ -130,7 +130,7 @@ public class CommandManager implements Retainable {
                 this.statsManager.fileWorkEnd(key);
             }
         }
-        this.statsManager.writeSessionStat();
+        this.statsManager.writeSessionStats();
         if(allSaved && Config.enableMemento){
             Utils.saveObject(Config.mementoFilePathRelative, this);
             System.out.println("All saved. Save all workspaces.");
